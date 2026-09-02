@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deposit Wallet</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --theme-color: #e2136e; /* Default bKash Pink */
+            --bg-color: #f4f6f9;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 15px;
+        }
+
+        .deposit-card {
+            background: #ffffff;
+            width: 100%;
+            max-width: 420px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            padding: 15px 20px;
+            background-color: var(--theme-color);
+            color: #fff;
+            transition: background 0.3s;
+        }
+
+        .back-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            margin-right: 15px;
+        }
+
+        .header h3 { font-size: 18px; font-weight: 600; }
+        .content { padding: 20px; }
+
+        /* Step 1 Styles */
+        .section-title { font-size: 14px; font-weight: bold; color: #555; margin-bottom: 10px; }
+        
+        .payment-methods {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .method-btn {
+            padding: 12px 5px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            background: #fff;
+            cursor: pointer;
+            text-align: center;
+            font-weight: bold;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .method-btn.active {
+            border-color: var(--theme-color);
+            color: var(--theme-color);
+            background-color: #fff0f5;
+        }
+
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; font-size: 14px; margin-bottom: 6px; color: #333; font-weight: 600; }
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 15px;
+            outline: none;
+        }
+        .form-group input:focus { border-color: var(--theme-color); }
+        .limit-text { font-size: 11px; color: #777; margin-top: 4px; }
+
+        .submit-btn {
+            width: 100%;
+            padding: 14px;
+            background-color: var(--theme-color);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        /* Step 2 Gateway View */
+        .gateway-box {
+            background-color: var(--theme-color);
+            color: white;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: left;
+            transition: background 0.3s;
+        }
+
+        .trx-input {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 6px;
+            font-size: 15px;
+            text-align: center;
+            margin-bottom: 15px;
+            outline: none;
+        }
+
+        .instruction-list {
+            font-size: 13px;
+            line-height: 1.8;
+            margin-bottom: 15px;
+        }
+
+        .copy-tag {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 2px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            margin-left: 5px;
+            display: inline-block;
+        }
+
+        /* Overlay Loader */
+        .loader-overlay {
+            display: none;
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 10;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .spinner {
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid var(--theme-color);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin-bottom: 15px;
+        }
+
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        .support-btn {
+            margin-top: 15px;
+            padding: 10px 20px;
+            background: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="deposit-card">
+        <!-- Overlay Loading Screen -->
+        <div class="loader-overlay" id="loaderOverlay">
+            <div class="spinner" id="spinner"></div>
+            <h4 id="loaderTitle">Please Wait Checking...</h4>
+            <p id="loaderDesc" style="font-size: 12px; color: #666; margin-top: 5px;">আমরা আপনার পেমেন্ট ভেরিফাই করছি</p>
+            <a href="https://t.me/Md_Emon_Mia" class="support-btn" id="supportBtn" style="display: none;">Please Contact Support</a>
+        </div>
+
+        <!-- Header -->
+        <div class="header">
+            <button class="back-btn" onclick="handleBack()"><i class="fas fa-arrow-left"></i></button>
+            <h3 id="headerTitle">Add Balance To Wallet</h3>
+        </div>
+
+        <div class="content">
+            <!-- STEP 1 FORM -->
+            <div id="step1">
+                <div class="section-title">পেমেন্ট মেথড সিলেক্ট করুন:</div>
+                <div class="payment-methods">
+                    <button class="method-btn active" onclick="selectMethod('bkash', this)">bKash</button>
+                    <button class="method-btn" onclick="selectMethod('nagad', this)">Nagad</button>
+                    <button class="method-btn" onclick="selectMethod('rocket', this)">Rocket</button>
+                </div>
+
+                <form id="amountForm">
+                    <div class="form-group">
+                        <label for="amount">ডিপোজিট পরিমাণ (টাকা)</label>
+                        <input type="number" id="amount" min="10" max="100" placeholder="১০ - ১০০ এর মধ্যে লিখুন" required>
+                        <div class="limit-text">* সর্বনিম্ন ১০ টাকা এবং সর্বোচ্চ ১০০ টাকা</div>
+                    </div>
+                    <button type="submit" class="submit-btn">Next Step</button>
+                </form>
+            </div>
+
+            <!-- STEP 2 GATEWAY -->
+            <div id="step2" style="display: none;">
+                <div class="gateway-box">
+                    <h4 style="text-align: center; margin-bottom: 12px;">ট্রানজেকশন আইডি দিন</h4>
+                    <input type="text" id="trxId" class="trx-input" placeholder="ট্রানজেকশন আইডি দিন" required>
+
+                    <div class="instruction-list">
+                        <p>• <span id="ussdCode">*247#</span> ডায়াল করে অথবা অ্যাপে যান।</p>
+                        <p>• <b>"Send Money"</b>-এ ক্লিক করুন।</p>
+                        <p>• প্রাপক নম্বর হিসেবে এই নম্বরটি লিখুন: <b><span id="targetNumber">লোড হচ্ছে...</span></b> <span class="copy-tag" onclick="copyNumber()"><i class="fas fa-copy"></i> Copy</span></p>
+                        <p>• টাকার পরিমাণ: <b>৳<span id="displayAmount">0.00</span></b></p>
+                        <p>• নিশ্চিত করতে আপনার পিন নম্বর দিন।</p>
+                        <p>• ট্রানজেকশন সফল হলে Transaction ID-টি উপরের বক্সে লিখে VERIFY চাপুন।</p>
+                    </div>
+                </div>
+                <button type="button" class="submit-btn" style="margin-top: 15px;" onclick="startVerification()">VERIFY</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase Scripts -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
+    <script>
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyAz-zkj7o-5w47U2AFAdXWvpa0uYaF9VFw",
+            authDomain: "mail-shop-bd.firebaseapp.com",
+            databaseURL: "https://mail-shop-bd-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "mail-shop-bd",
+            storageBucket: "mail-shop-bd.firebasestorage.app",
+            messagingSenderId: "19603951400",
+            appId: "1:19603951400:web:4eedb894f65ba908898a1d"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        // System States
+        let currentMethod = 'bkash';
+        let depositAmount = 0;
+        let userId = "USER_12345"; // ডেমো ইউজার আইডি (আপনার সিস্টেমের সাথে কানেক্ট করুন)
+        let checkTimer = null;
+        let timeoutTimer = null;
+
+        // Theme Setup
+        const themes = {
+            bkash: { color: '#e2136e', ussd: '*247#' },
+            nagad: { color: '#d32f2f', ussd: '*167#' },
+            rocket: { color: '#8e24aa', ussd: '*322#' }
+        };
+
+        function selectMethod(method, btn) {
+            currentMethod = method;
+            document.querySelectorAll('.method-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            
+            // Set Dynamic Color Theme
+            document.documentElement.style.setProperty('--theme-color', themes[method].color);
+        }
+
+        // Step 1 Submission
+        document.getElementById('amountForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            depositAmount = parseFloat(document.getElementById('amount').value);
+
+            if (depositAmount < 10 || depositAmount > 100) {
+                alert('অনুগ্রহ করে ১০ থেকে ১০০ টাকার মধ্যে ইনপুট দিন।');
+                return;
+            }
+
+            // Switch to Step 2
+            document.getElementById('step1').style.display = 'none';
+            document.getElementById('step2').style.display = 'block';
+            document.getElementById('displayAmount').innerText = depositAmount.toFixed(2);
+            document.getElementById('ussdCode').innerText = themes[currentMethod].ussd;
+
+            // Load Number from Database
+            loadPaymentNumber(currentMethod);
+        });
+
+        function loadPaymentNumber(method) {
+            const targetElement = document.getElementById('targetNumber');
+            targetElement.innerText = "লোড হচ্ছে...";
+
+            database.ref('payment_methods/' + method).once('value').then((snapshot) => {
+                targetElement.innerText = snapshot.val() || "নম্বর পাওয়া যায়নি";
+            }).catch(() => {
+                targetElement.innerText = "ত্রুটি ঘটেছে";
+            });
+        }
+
+        function copyNumber() {
+            const num = document.getElementById('targetNumber').innerText;
+            if (num && !num.includes('লোড')) {
+                navigator.clipboard.writeText(num);
+                alert('নম্বর কপি করা হয়েছে: ' + num);
+            }
+        }
+
+        // Handle Back Button
+        function handleBack() {
+            if (document.getElementById('step2').style.display === 'block') {
+                document.getElementById('step2').style.display = 'none';
+                document.getElementById('step1').style.display = 'block';
+            } else {
+                window.history.back();
+            }
+        }
+
+        // Verification Process
+        function startVerification() {
+            const inputTrx = document.getElementById('trxId').value.trim();
+            if (!inputTrx) {
+                alert('অনুগ্রহ করে Transaction ID প্রদান করুন!');
+                return;
+            }
+
+            // Show Loader
+            const loader = document.getElementById('loaderOverlay');
+            loader.style.display = 'flex';
+            document.getElementById('spinner').style.display = 'block';
+            document.getElementById('loaderTitle').innerText = "Please Wait Checking...";
+            document.getElementById('loaderDesc').innerText = "আমরা আপনার পেমেন্ট ভেরিফাই করছি";
+            document.getElementById('supportBtn').style.display = 'none';
+
+            // Realtime Listener on sms_history
+            const smsRef = database.ref('sms_history');
+            
+            checkTimer = smsRef.on('value', (snapshot) => {
+                const data = snapshot.val();
+                let isFound = false;
+
+                if (data) {
+                    for (let key in data) {
+                        const sms = data[key];
+                        const msgText = sms.msg || "";
+                        
+                        // Check if SMS contains TrxID and Amount matches
+                        if (msgText.includes(inputTrx) && msgText.includes(depositAmount.toString())) {
+                            isFound = true;
+                            break;
+                        }
+                    }
+                }
+
+                if (isFound) {
+                    // Stop Listening
+                    smsRef.off('value', checkTimer);
+                    clearTimeout(timeoutTimer);
+
+                    // Process Success
+                    processSuccessfulDeposit(inputTrx, depositAmount);
+                }
+            });
+
+            // Set 5 Minutes Timeout (5 * 60 * 1000 ms)
+            timeoutTimer = setTimeout(() => {
+                smsRef.off('value', checkTimer);
+                
+                // Show Fail State
+                document.getElementById('spinner').style.display = 'none';
+                document.getElementById('loaderTitle').innerText = "Verification Failed!";
+                document.getElementById('loaderTitle').style.color = "#dc3545";
+                document.getElementById('loaderDesc').innerText = "৫ মিনিটের মধ্যে পেমেন্ট খুঁজে পাওয়া যায়নি।";
+                document.getElementById('supportBtn').style.display = 'inline-block';
+            }, 300000); // 5 Minutes
+        }
+
+        // Add Money to User Wallet & History
+        function processSuccessfulDeposit(trxId, amount) {
+            // Update Balance
+            const userBalanceRef = database.ref(`users/${userId}/balance`);
+            userBalanceRef.transaction((currentBalance) => {
+                return (currentBalance || 0) + amount;
+            }).then(() => {
+                // Save to Deposit History
+                const historyRef = database.ref(`users/${userId}/deposit_history`).push();
+                return historyRef.set({
+                    trxId: trxId,
+                    amount: amount,
+                    method: currentMethod,
+                    timestamp: new Date().toISOString(),
+                    status: 'success'
+                });
+            }).then(() => {
+                alert('সফলভাবে টাকা যোগ হয়েছে!');
+                window.location.href = 'dashboard.html'; // ড্যাশবোর্ডে রিডাইরেক্ট
+            }).catch((err) => {
+                console.error(err);
+                alert('ডাটাবেজ আপডেট করতে সমস্যা হয়েছে!');
+            });
+        }
+    </script>
+</body>
+</html>
