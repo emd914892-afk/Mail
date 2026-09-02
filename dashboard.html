@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Global Shop BD - Dashboard</title>
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    body {
+      background-color: #0f172a;
+      color: #f8fafc;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Navbar Styling */
+    .navbar {
+      background-color: #1e293b;
+      padding: 12px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #334155;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .nav-left, .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+    .menu-btn, .profile-btn {
+      background: none;
+      border: none;
+      color: #f8fafc;
+      font-size: 20px;
+      cursor: pointer;
+    }
+    .brand-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: #3b82f6;
+    }
+
+    /* Balance Section in Navbar */
+    .balance-box {
+      background: #0f172a;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 13px;
+      border: 1px solid #334155;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .balance-box span {
+      color: #22c55e;
+      font-weight: 600;
+    }
+    .eye-toggle {
+      background: none;
+      border: none;
+      color: #94a3b8;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    /* Profile Dropdown */
+    .dropdown-menu {
+      position: absolute;
+      right: 20px;
+      top: 60px;
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 8px;
+      width: 160px;
+      display: none;
+      flex-direction: column;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+      z-index: 200;
+    }
+    .dropdown-menu a {
+      padding: 10px 15px;
+      color: #f8fafc;
+      text-decoration: none;
+      font-size: 14px;
+      border-bottom: 1px solid #334155;
+      transition: background 0.2s;
+    }
+    .dropdown-menu a:last-child {
+      border-bottom: none;
+    }
+    .dropdown-menu a:hover {
+      background: #334155;
+    }
+
+    /* Hamburger Sidebar */
+    .sidebar {
+      position: fixed;
+      top: 0; left: -260px;
+      width: 260px; height: 100%;
+      background: #1e293b;
+      border-right: 1px solid #334155;
+      transition: left 0.3s ease;
+      z-index: 1000;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+    }
+    .sidebar.active {
+      left: 0;
+    }
+    .sidebar-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 30px;
+      border-bottom: 1px solid #334155;
+      padding-bottom: 10px;
+    }
+    .sidebar-close {
+      background: none; border: none; color: #f8fafc; font-size: 20px; cursor: pointer;
+    }
+    .sidebar-links {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .sidebar-links a {
+      background: #0f172a;
+      padding: 12px 15px;
+      color: #f8fafc;
+      text-decoration: none;
+      border-radius: 8px;
+      font-size: 14px;
+      border: 1px solid #334155;
+      transition: 0.2s;
+    }
+    .sidebar-links a:hover {
+      background: #2563eb;
+      border-color: #2563eb;
+    }
+    .overlay {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.5);
+      display: none;
+      z-index: 900;
+    }
+    .overlay.active { display: block; }
+
+    /* Main Content Styling */
+    .main-content {
+      padding: 20px;
+      max-width: 800px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    /* Top Banner Section Header */
+    .section-header-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    .section-header-top h2 {
+      font-size: 16px;
+      color: #3b82f6;
+    }
+    .section-header-top span {
+      font-size: 12px;
+      color: #22c55e;
+      background: #1e293b;
+      padding: 3px 10px;
+      border-radius: 12px;
+      border: 1px solid #334155;
+    }
+
+    /* Info Cards Grid (3 Cards nicely aligned) */
+    .banner-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-bottom: 25px;
+    }
+    @media (max-width: 600px) {
+      .banner-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+    .banner-card {
+      background: #1e293b;
+      border: 1px solid #334155;
+      padding: 15px 10px;
+      border-radius: 12px;
+      text-align: center;
+    }
+    .banner-card i {
+      font-size: 20px;
+      color: #3b82f6;
+      margin-bottom: 6px;
+    }
+    .banner-card h4 {
+      font-size: 13px;
+      margin-bottom: 3px;
+      color: #f8fafc;
+    }
+    .banner-card p {
+      font-size: 10px;
+      color: #94a3b8;
+    }
+
+    /* Our Service Section Styles */
+    .section-title {
+      font-size: 17px;
+      margin-bottom: 12px;
+      font-weight: 600;
+      color: #3b82f6;
+    }
+    .services-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 15px;
+    }
+    .service-card {
+      background: #1e293b;
+      border: 1px solid #334155;
+      padding: 18px 12px;
+      border-radius: 12px;
+      text-align: center;
+      text-decoration: none;
+      color: #f8fafc;
+      transition: transform 0.2s, border-color 0.2s;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    .service-card:hover {
+      transform: translateY(-3px);
+      border-color: #3b82f6;
+      background: #2563eb15;
+    }
+    .service-card i {
+      font-size: 26px;
+      color: #3b82f6;
+      margin-bottom: 10px;
+    }
+    .service-card h3 {
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+    .service-card p {
+      font-size: 11px;
+      color: #94a3b8;
+    }
+
+    /* Floating Telegram Support Icon */
+    .telegram-float {
+      position: fixed;
+      bottom: 20px; right: 20px;
+      background: #229ED9;
+      color: white;
+      width: 50px; height: 50px;
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 24px;
+      box-shadow: 0 4px 15px rgba(34, 158, 217, 0.4);
+      z-index: 100;
+      text-decoration: none;
+      transition: transform 0.2s;
+    }
+    .telegram-float:hover {
+      transform: scale(1.1);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navbar -->
+  <header class="navbar">
+    <div class="nav-left">
+      <button id="menuBtn" class="menu-btn"><i class="fa-solid fa-bars"></i></button>
+      <div class="brand-title">Global Shop BD</div>
+    </div>
+    <div class="nav-right">
+      <!-- Balance with Hide/Show Star Icon -->
+      <div class="balance-box">
+        Balance: <span id="balanceText">00.0 Tk</span>
+        <button id="toggleBalance" class="eye-toggle"><i class="fa-solid fa-eye"></i></button>
+      </div>
+      <!-- Profile Icon -->
+      <div style="position: relative;">
+        <button id="profileBtn" class="profile-btn"><i class="fa-solid fa-circle-user" style="font-size: 26px;"></i></button>
+        <!-- Profile Dropdown -->
+        <div id="profileDropdown" class="dropdown-menu">
+          <a href="profile.html"><i class="fa-solid fa-user"></i> Profile</a>
+          <a href="add-balance.html"><i class="fa-solid fa-wallet"></i> Balance Add</a>
+          <a href="index.html" id="logoutBtn"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hamburger Sidebar Menu -->
+  <div id="overlay" class="overlay"></div>
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-header">
+      <span style="font-weight: bold; color: #3b82f6;">Navigation</span>
+      <button id="sidebarClose" class="sidebar-close"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="sidebar-links">
+      <a href="number-buy.html"><i class="fa-solid fa-phone"></i> Number Buy</a>
+      <a href="email-buy.html"><i class="fa-solid fa-envelope"></i> Email Buy</a>
+      <a href="vpn-buy.html"><i class="fa-solid fa-shield-halved"></i> Vpn Buy</a>
+      <a href="proxy-buy.html"><i class="fa-solid fa-network-wired"></i> Proxy Buy</a>
+      <a href="premium-buy.html"><i class="fa-solid fa-crown"></i> Premium Buy</a>
+    </div>
+  </aside>
+
+  <!-- Main Content Area -->
+  <main class="main-content">
+    
+    <!-- Top Header for Cards -->
+    <div class="section-header-top">
+      <h2>Our Products</h2>
+      <span>Best Quality full</span>
+    </div>
+
+    <!-- Info Cards Banner (3 Cards filled nicely) -->
+    <div class="banner-grid">
+      <div class="banner-card">
+        <i class="fa-solid fa-wallet"></i>
+        <h4>Easy Balance Add</h4>
+        <p>BKash, Rocket, Nagad</p>
+      </div>
+      <div class="banner-card">
+        <i class="fa-solid fa-headset"></i>
+        <h4>24/7 Support</h4>
+        <p>Always here to help</p>
+      </div>
+      <div class="banner-card">
+        <i class="fa-solid fa-bolt"></i>
+        <h4>Fast Delivery</h4>
+        <p>Instant Delivery</p>
+      </div>
+    </div>
+<!-- Our Service Section -->
+<h2 class="section-title">Our Service</h2>
+<div class="services-grid">
+  
+  <div class="service-card">
+    <i class="fa-solid fa-envelope"></i>
+    <h3>Mail</h3>
+    <p>High Quality</p>
+  </div>
+
+  <div class="service-card">
+    <i class="fa-solid fa-shield-halved"></i>
+    <h3>VPN</h3>
+    <p>Secure & Fast</p>
+  </div>
+
+  <div class="service-card">
+    <i class="fa-solid fa-network-wired"></i>
+    <h3>Proxy</h3>
+    <p>Private Proxies</p>
+  </div>
+
+  <div class="service-card">
+    <i class="fa-solid fa-phone"></i>
+    <h3>Number</h3>
+    <p>OTP Verification</p>
+  </div>
+
+  <div class="service-card">
+    <i class="fa-solid fa-crown"></i>
+    <h3>Premium</h3>
+    <p>Active Key</p>
+  </div>
+
+</div>
+
+</main>
+
+
+  <!-- Floating Telegram Support Icon -->
+  <a href="https://t.me/Md_Emon_Mia" target="_blank" class="telegram-float" title="Support 24/7">
+    <i class="fa-brands fa-telegram"></i>
+  </a>
+
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+
+  <script>
+    // Firebase Config
+    const firebaseConfig = {
+      apiKey: "AIzaSyAz-zkj7o-5w47U2AFAdXWvpa0uYaF9VFw",
+      authDomain: "mail-shop-bd.firebaseapp.com",
+      databaseURL: "https://mail-shop-bd-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "mail-shop-bd",
+      storageBucket: "mail-shop-bd.firebasestorage.app",
+      messagingSenderId: "19603951400",
+      appId: "1:19603951400:web:4eedb894f65ba908898a1d",
+      measurementId: "G-5T3HESJSW2"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.database();
+
+    // DOM Elements
+    const menuBtn = document.getElementById('menuBtn');
+    const sidebar = document.getElementById('sidebar');
+    const sidebarClose = document.getElementById('sidebarClose');
+    const overlay = document.getElementById('overlay');
+    const profileBtn = document.getElementById('profileBtn');
+    const profileDropdown = document.getElementById('profileDropdown');
+    const toggleBalance = document.getElementById('toggleBalance');
+    const balanceText = document.getElementById('balanceText');
+    const logoutBtn = document.getElementById('logoutBtn');
+
+    let actualBalance = "00.0 Tk";
+    let isBalanceHidden = false;
+
+    // Check Authentication State (কেউ লগইন করা না থাকলে index.html এ পাঠিয়ে দিবে)
+    auth.onAuthStateChanged(user => {
+      if (user) {
+        db.ref('users/' + user.uid + '/balance').on('value', snapshot => {
+          if (snapshot.exists()) {
+            actualBalance = snapshot.val() + " Tk";
+            if (!isBalanceHidden) {
+              balanceText.textContent = actualBalance;
+            }
+          }
+        });
+      } else {
+        window.location.href = "index.html";
+      }
+    });
+
+    // Hamburger Menu Open/Close
+    menuBtn.addEventListener('click', () => {
+      sidebar.classList.add('active');
+      overlay.classList.add('active');
+    });
+    sidebarClose.addEventListener('click', () => {
+      sidebar.classList.remove('active');
+      overlay.classList.remove('active');
+    });
+    overlay.addEventListener('click', () => {
+      sidebar.classList.remove('active');
+      overlay.classList.remove('active');
+    });
+
+    // Profile Dropdown Toggle
+    profileBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      profileDropdown.style.display = profileDropdown.style.display === 'flex' ? 'none' : 'flex';
+    });
+    window.addEventListener('click', () => {
+      profileDropdown.style.display = 'none';
+    });
+
+    // Balance Hide/Show (স্টার চিহ্ন রূপান্তর)
+    toggleBalance.addEventListener('click', () => {
+      const icon = toggleBalance.querySelector('i');
+      if (!isBalanceHidden) {
+        balanceText.textContent = "★★★★★";
+        icon.className = "fa-solid fa-eye-slash";
+        isBalanceHidden = true;
+      } else {
+        balanceText.textContent = actualBalance;
+        icon.className = "fa-solid fa-eye";
+        isBalanceHidden = false;
+      }
+    });
+
+    // Logout Functionality
+    logoutBtn.addEventListener('click', async (e) => {
+      e.preventDefault();
+      await auth.signOut();
+      window.location.href = "index.html";
+    });
+  </script>
+</body>
+</html>
