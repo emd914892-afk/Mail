@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Premium Subscription Buy - Mail Shop BD</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    body { background-color: #0b1120; color: #f8fafc; min-height: 100vh; padding: 20px; padding-bottom: 50px; }
+
+    .header { 
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 25px; 
+      border-bottom: 1px solid #1e293b; 
+      padding-bottom: 15px; 
+    }
+    
+    .back-btn {
+      position: absolute;
+      left: 0;
+      top: 0;
+      background: #1e293b;
+      color: #3b82f6;
+      border: 1px solid #334155;
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      text-decoration: none;
+      transition: background 0.2s ease;
+    }
+
+    .back-btn:hover { background: #334155; color: #fff; }
+
+    .header h2 { color: #eab308; font-size: 22px; display: flex; align-items: center; gap: 10px; }
+
+    .container { max-width: 650px; margin: 0 auto; }
+
+    /* Service Card Design */
+    .sub-card {
+      background: #0f172a;
+      border: 1px solid #1e293b;
+      border-radius: 16px;
+      padding: 18px;
+      margin-bottom: 15px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .sub-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #1e293b;
+      padding-bottom: 10px;
+    }
+
+    .sub-title { font-size: 16px; font-weight: bold; color: #fff; display: flex; align-items: center; gap: 8px; }
+    .sub-price { color: #10b981; font-weight: bold; font-size: 15px; }
+
+    .sub-details {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 13px;
+      color: #94a3b8;
+    }
+
+    .stock-badge {
+      background: #1e293b;
+      color: #3b82f6;
+      padding: 3px 8px;
+      border-radius: 12px;
+      font-weight: bold;
+    }
+
+    .buy-action {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .quantity-input {
+      width: 80px;
+      padding: 8px;
+      background: #020617;
+      border: 1px solid #334155;
+      border-radius: 6px;
+      color: #fff;
+      text-align: center;
+      outline: none;
+    }
+
+    .buy-btn {
+      flex: 1;
+      padding: 10px;
+      background: linear-gradient(90deg, #eab308, #ca8a04);
+      border: none;
+      border-radius: 8px;
+      color: #000;
+      font-weight: bold;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: opacity 0.2s;
+    }
+
+    .buy-btn:hover { opacity: 0.9; }
+    .buy-btn:disabled { background: #334155; color: #64748b; cursor: not-allowed; }
+
+    /* Modal Overlay Styles */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(2, 6, 23, 0.8);
+      backdrop-filter: blur(4px);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      padding: 20px;
+    }
+
+    .modal-box {
+      background: #0f172a;
+      border: 1px solid #1e293b;
+      border-radius: 16px;
+      max-width: 420px;
+      width: 100%;
+      padding: 20px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+      animation: modalFade 0.2s ease-out;
+    }
+
+    @keyframes modalFade {
+      from { transform: scale(0.9); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #1e293b;
+      padding-bottom: 12px;
+      margin-bottom: 15px;
+    }
+
+    .modal-header h3 { font-size: 18px; color: #fff; display: flex; align-items: center; gap: 8px; }
+    .close-modal { background: none; border: none; color: #94a3b8; font-size: 18px; cursor: pointer; }
+
+    .modal-body { font-size: 14px; color: #cbd5e1; margin-bottom: 20px; }
+    .modal-row { display: flex; justify-content: space-between; margin-bottom: 10px; }
+    .modal-row strong { color: #fff; }
+
+    .modal-actions { display: flex; gap: 10px; }
+    
+    .confirm-btn {
+      flex: 1;
+      padding: 10px;
+      background: linear-gradient(90deg, #10b981, #059669);
+      border: none;
+      border-radius: 8px;
+      color: #fff;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .cancel-btn {
+      padding: 10px 15px;
+      background: #334155;
+      border: none;
+      border-radius: 8px;
+      color: #fff;
+      font-weight: bold;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <div class="header">
+      <!-- Top Left Back Button -->
+      <button class="back-btn" onclick="history.back()"><i class="fa-solid fa-arrow-left"></i> Back</button>
+      <h2><i class="fa-solid fa-crown"></i> Premium Subscriptions</h2>
+    </div>
+
+    <!-- Live Subscription Services List Container -->
+    <div id="subListContainer">
+      <p style="text-align: center; color: #64748b;">Loading Premium Subscriptions...</p>
+    </div>
+  </div>
+
+  <!-- Buy Order Confirmation Modal -->
+  <div class="modal-overlay" id="orderModal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3><i class="fa-solid fa-cart-check" style="color: #10b981;"></i> কনফার্ম অর্ডার</h3>
+        <button class="close-modal" onclick="closeModal()"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="modal-body">
+        <div class="modal-row">
+          <span>সাবস্ক্রিপশনের নাম:</span>
+          <strong id="modalTitle">-</strong>
+        </div>
+        <div class="modal-row">
+          <span>পরিমাণ:</span>
+          <strong id="modalQty">-</strong>
+        </div>
+        <div class="modal-row">
+          <span>একক মূল্য:</span>
+          <strong id="modalUnitPrice">-</strong>
+        </div>
+        <div class="modal-row" style="border-top: 1px solid #1e293b; padding-top: 10px; margin-top: 10px;">
+          <span style="font-size: 16px; color: #fff; font-weight: bold;">মোট মূল্য:</span>
+          <strong id="modalTotalPrice" style="font-size: 16px; color: #10b981;">-</strong>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button class="cancel-btn" onclick="closeModal()">বাতিল</button>
+        <button class="confirm-btn" id="confirmBuyBtn" onclick="processOrder()">অর্ডার নিশ্চিত করুন</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Firebase Compat SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyAz-zkj7o-5w47U2AFAdXWvpa0uYaF9VFw",
+      authDomain: "mail-shop-bd.firebaseapp.com",
+      databaseURL: "https://mail-shop-bd-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "mail-shop-bd",
+      storageBucket: "mail-shop-bd.firebasestorage.app",
+      messagingSenderId: "19603951400",
+      appId: "1:19603951400:web:4eedb894f65ba908898a1d"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+    const auth = firebase.auth();
+
+    // Store Selected Subscription Details temporarily
+    let currentOrder = null;
+
+    // 🔴 Load Subscription Services from Firebase Node (`subscription_services`)
+    function loadSubscriptionServices() {
+      const container = document.getElementById('subListContainer');
+
+      db.ref('subscription_services').on('value', snapshot => {
+        container.innerHTML = '';
+
+        if (!snapshot.exists()) {
+          container.innerHTML = '<p style="text-align: center; color: #64748b;">বর্তমানে কোনো প্রিমিয়াম সাবস্ক্রিপশন স্টক নেই।</p>';
+          return;
+        }
+
+        snapshot.forEach(child => {
+          const service = child.val();
+          const key = child.key;
+
+          let stockCount = 0;
+          if (service.items) {
+            stockCount = Object.keys(service.items).length;
+          }
+
+          const isOut = stockCount === 0;
+
+          container.innerHTML += `
+            <div class="sub-card">
+              <div class="sub-header">
+                <div class="sub-title"><i class="fa-solid fa-gem" style="color:#eab308;"></i> ${service.title}</div>
+                <div class="sub-price">৳${service.price} / Piece</div>
+              </div>
+              <div class="sub-details">
+                <span>উপলব্ধ স্টক:</span>
+                <span class="stock-badge" style="color: ${isOut ? '#ef4444' : '#10b981'}">${stockCount} Pcs</span>
+              </div>
+              <div class="buy-action">
+                <input type="number" id="qty_${key}" class="quantity-input" value="1" min="1" max="${stockCount}" ${isOut ? 'disabled' : ''}>
+                <button class="buy-btn" onclick="openOrderModal('${key}', '${service.title}', ${service.price}, ${stockCount})" ${isOut ? 'disabled' : ''}>
+                  <i class="fa-solid fa-cart-shopping"></i> ${isOut ? 'Out of Stock' : 'Buy Now'}
+                </button>
+              </div>
+            </div>
+          `;
+        });
+      });
+    }
+
+    // 🔴 Open Modal Function
+    function openOrderModal(key, title, unitPrice, availableStock) {
+      const user = auth.currentUser;
+      if (!user) {
+        alert("অর্ডার করার আগে দয়া করে অ্যাকাউন্টে লগইন করুন!");
+        return;
+      }
+
+      const qtyInput = document.getElementById(`qty_${key}`);
+      const quantity = parseInt(qtyInput.value);
+
+      if (isNaN(quantity) || quantity <= 0) {
+        alert("দয়া করে সঠিক পরিমাণ লিখুন!");
+        return;
+      }
+
+      if (quantity > availableStock) {
+        alert(`দুঃখিত! স্টকে মাত্র ${availableStock} টি অ্যাকাউন্ট আছে।`);
+        return;
+      }
+
+      const totalPrice = unitPrice * quantity;
+
+      // Save global state
+      currentOrder = {
+        key,
+        title,
+        quantity,
+        unitPrice,
+        totalPrice
+      };
+
+      // Populate Modal Fields
+      document.getElementById('modalTitle').innerText = title;
+      document.getElementById('modalQty').innerText = quantity + " Pcs";
+      document.getElementById('modalUnitPrice').innerText = `৳${unitPrice}`;
+      document.getElementById('modalTotalPrice').innerText = `৳${totalPrice}`;
+
+      // Show Modal
+      document.getElementById('orderModal').style.display = 'flex';
+    }
+
+    // 🔴 Close Modal Function
+    function closeModal() {
+      document.getElementById('orderModal').style.display = 'none';
+      currentOrder = null;
+    }
+
+    // 🔴 Finalize Purchase Execution (Production Logic with Balance Check)
+    async function processOrder() {
+      if (!currentOrder) return;
+
+      const confirmBtn = document.getElementById('confirmBuyBtn');
+      confirmBtn.disabled = true;
+      confirmBtn.innerText = "প্রসেসিং হচ্ছে...";
+
+      const user = auth.currentUser;
+      if (!user) {
+        alert("অর্ডার কনফার্ম করতে লগইন করুন!");
+        closeModal();
+        confirmBtn.disabled = false;
+        confirmBtn.innerText = "অর্ডার নিশ্চিত করুন";
+        return;
+      }
+
+      const userId = user.uid;
+      const userRef = db.ref(`users/${userId}`);
+
+      try {
+        // ১. ইউজারের ব্যালেন্স রিড করা
+        const userSnap = await userRef.once('value');
+        const userData = userSnap.val();
+        const currentBalance = (userData && userData.balance) ? parseFloat(userData.balance) : 0;
+
+        // ২. ব্যালেন্স চেক করা
+        if (currentBalance < currentOrder.totalPrice) {
+          alert(`পর্যাপ্ত ব্যালেন্স নেই!\n\nআপনার বর্তমান ব্যালেন্স: ৳${currentBalance}\nপ্রয়োজনীয় ব্যালেন্স: ৳${currentOrder.totalPrice}\n\nদয়া করে ওয়ালেট রিচার্জ করুন।`);
+          closeModal();
+          return;
+        }
+
+        // ৩. স্টক রিড এবং ভ্যালিডেশন
+        const serviceRef = db.ref(`subscription_services/${currentOrder.key}`);
+        const serviceSnap = await serviceRef.once('value');
+        
+        if (!serviceSnap.exists()) {
+          throw new Error("সার্ভিসটি পাওয়া যায়নি!");
+        }
+
+        const itemsObj = serviceSnap.val().items || {};
+        const itemKeys = Object.keys(itemsObj);
+
+        if (itemKeys.length < currentOrder.quantity) {
+          alert("দুঃখিত, বর্তমানে পর্যাপ্ত স্টক নেই!");
+          closeModal();
+          return;
+        }
+
+        // ৪. স্টক থেকে আইটেম রিসিভ করা
+        const selectedKeys = itemKeys.slice(0, currentOrder.quantity);
+        const purchasedItems = selectedKeys.map(k => itemsObj[k]);
+
+        // ৫. ডাটাবেস আপডেট (ব্যালেন্স ডিডাক্ট + স্টক রিমুভ + অর্ডার হিস্ট্রি)
+        const updates = {};
+        const newBalance = currentBalance - currentOrder.totalPrice;
+        
+        updates[`users/${userId}/balance`] = newBalance;
+
+        // স্টক থেকে বিক্রয়কৃত অ্যাকাউন্ট রিমুভ
+        selectedKeys.forEach(k => {
+          updates[`subscription_services/${currentOrder.key}/items/${k}`] = null;
+        });
+
+        // অর্ডার ট্রানজ্যাকশন সেভ
+        const newOrderKey = db.ref(`orders`).push().key;
+        const orderData = {
+          orderId: newOrderKey,
+          userId: userId,
+          userEmail: user.email || "N/A",
+          title: currentOrder.title,
+          category: "Subscription",
+          quantity: currentOrder.quantity,
+          totalPrice: currentOrder.totalPrice,
+          deliveredData: purchasedItems,
+          date: new Date().toISOString()
+        };
+
+        updates[`orders/${newOrderKey}`] = orderData;
+        updates[`user_orders/${userId}/${newOrderKey}`] = orderData;
+
+        // আপডেট এক্সিকিউট করা
+        await db.ref().update(updates);
+
+        alert(`অভিনন্দন! সফলভাবে ${currentOrder.quantity} টি ${currentOrder.title} কেনা হয়েছে।\nঅবশিষ্ট ব্যালেন্স: ৳${newBalance}`);
+        closeModal();
+
+      } catch (err) {
+        alert("অর্ডার প্রসেস ব্যর্থ হয়েছে: " + err.message);
+      } finally {
+        confirmBtn.disabled = false;
+        confirmBtn.innerText = "অর্ডার নিশ্চিত করুন";
+      }
+    }
+
+    // Initialize
+    loadSubscriptionServices();
+  </script>
+</body>
+</html>
