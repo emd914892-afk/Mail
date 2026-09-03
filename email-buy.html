@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mail Buy - Mail Shop BD</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    body { background-color: #0b1120; color: #f8fafc; min-height: 100vh; padding-bottom: 70px; }
+
+    /* Top Navbar with Centered Title */
+    .navbar {
+      background-color: #0f172a;
+      padding: 15px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid #1e293b;
+      position: sticky; top: 0; z-index: 100;
+    }
+    .back-btn { background: none; border: none; color: #f8fafc; font-size: 20px; cursor: pointer; text-decoration: none; }
+    .brand-title { 
+      font-size: 18px; 
+      font-weight: 700; 
+      display: flex; 
+      align-items: center; 
+      gap: 8px;
+      margin: 0 auto; 
+      transform: translateX(-10px); 
+    }
+
+    /* Container & Cards Layout */
+    .container { padding: 20px; max-width: 500px; margin: 0 auto; }
+    .card {
+      background: linear-gradient(145deg, #131d31, #0f172a);
+      border: 1px solid #1e293b;
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+      position: relative;
+    }
+    .card-title { font-size: 20px; font-weight: 700; color: #fff; margin-bottom: 8px; }
+    .price-tag { font-size: 22px; color: #f97316; font-weight: 800; margin-bottom: 15px; }
+    .price-unit { font-size: 14px; color: #94a3b8; font-weight: 400; }
+    
+    .feature-list { list-style: none; margin-bottom: 15px; font-size: 13px; color: #cbd5e1; }
+    .feature-list li { margin-bottom: 6px; display: flex; align-items: center; gap: 8px; }
+    .feature-list i { color: #3b82f6; width: 14px; }
+
+    .section-label { font-size: 11px; text-transform: uppercase; color: #64748b; font-weight: 700; letter-spacing: 0.5px; margin-bottom: 8px; }
+    
+    .buy-btn {
+      width: 100%;
+      padding: 12px;
+      background: linear-gradient(90deg, #f97316, #ef4444);
+      border: none;
+      border-radius: 25px;
+      color: #fff;
+      font-weight: 700;
+      font-size: 15px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      box-shadow: 0 4px 15px rgba(249, 115, 22, 0.3);
+      margin-bottom: 12px;
+    }
+
+    /* Stock Text Bottom Right */
+    .availability { 
+      display: flex; 
+      align-items: center; 
+      justify-content: flex-end; 
+      gap: 6px; 
+      font-size: 13px; 
+      color: #10b981; 
+      font-weight: 600; 
+    }
+
+    /* Modal Styling */
+    .modal-overlay {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      display: none; justify-content: center; align-items: center;
+      z-index: 1000; padding: 20px;
+    }
+    .modal-card {
+      background-color: #0f172a;
+      border: 1px solid #1e293b;
+      border-radius: 20px;
+      padding: 25px;
+      width: 100%; max-width: 380px;
+    }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .modal-title { font-size: 18px; font-weight: 700; color: #fff; display: flex; align-items: center; gap: 10px; }
+    .close-modal { background: none; border: none; color: #64748b; font-size: 20px; cursor: pointer; }
+
+    .quantity-control {
+      display: flex; align-items: center; justify-content: center;
+      background: #020617; border-radius: 12px; padding: 8px; gap: 20px; margin: 15px 0;
+    }
+    .qty-btn { background: none; border: none; color: #fff; font-size: 18px; cursor: pointer; width: 30px; }
+    .qty-num { font-size: 16px; font-weight: 700; color: #fff; }
+
+    .total-box {
+      background: #020617; padding: 15px; border-radius: 12px;
+      display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;
+    }
+    .total-price { font-size: 20px; color: #10b981; font-weight: 800; }
+
+    .modal-actions { display: flex; gap: 10px; }
+    .cancel-btn { flex: 1; padding: 12px; background: transparent; border: 1px solid #334155; color: #94a3b8; border-radius: 25px; cursor: pointer; }
+    .confirm-btn { flex: 1; padding: 12px; background: linear-gradient(90deg, #10b981, #059669); border: none; color: #fff; border-radius: 25px; font-weight: 700; cursor: pointer; }
+  </style>
+</head>
+<body>
+
+  <!-- Top Navbar -->
+  <div class="navbar">
+    <a href="dashboard.html" class="back-btn"><i class="fa-solid fa-arrow-left"></i></a>
+    <div class="brand-title"><i class="fa-solid fa-envelope" style="color:#ef4444;"></i> Mail Buy</div>
+    <div style="width: 20px;"></div>
+  </div>
+
+  <!-- Dynamic Mail Cards Container -->
+  <div class="container" id="mailCardsContainer">
+    <p style="text-align: center; color: #64748b; margin-top: 20px;">Loading Available Mails...</p>
+  </div>
+
+  <!-- Buy Modal -->
+  <div class="modal-overlay" id="buyModal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div class="modal-title"><i class="fa-solid fa-cart-shopping" style="color:#eab308;"></i> Confirm Purchase</div>
+        <button class="close-modal" onclick="closeBuyModal()"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <div style="margin-bottom: 12px;">
+        <div class="section-label">Category</div>
+        <div style="font-size: 15px; color: #eab308; font-weight: 700;" id="modalCategory">-</div>
+      </div>
+
+      <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+        <div>
+          <div class="section-label">Price Per Unit</div>
+          <div style="font-weight:700;">৳<span id="modalPrice">0.00</span></div>
+        </div>
+        <div>
+          <div class="section-label">Available Stock</div>
+          <div style="font-weight:700; color:#10b981; text-align:right;" id="modalStock">0</div>
+        </div>
+      </div>
+
+      <div style="text-align: center; margin-top: 15px;">
+        <div class="section-label">Select Quantity</div>
+        <div class="quantity-control">
+          <button class="qty-btn" onclick="updateQty(-1)">-</button>
+          <span class="qty-num" id="qtyVal">1</span>
+          <button class="qty-btn" onclick="updateQty(1)">+</button>
+        </div>
+      </div>
+
+      <div class="total-box">
+        <span style="font-weight: 600;">Total Cost:</span>
+        <span class="total-price">৳<span id="totalCost">0.00</span></span>
+      </div>
+
+      <div class="modal-actions">
+        <button class="cancel-btn" onclick="closeBuyModal()">Cancel</button>
+        <button class="confirm-btn" id="confirmBuyBtn">Confirm Buy</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Firebase Compat SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyAz-zkj7o-5w47U2AFAdXWvpa0uYaF9VFw",
+      authDomain: "mail-shop-bd.firebaseapp.com",
+      databaseURL: "https://mail-shop-bd-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "mail-shop-bd",
+      storageBucket: "mail-shop-bd.firebasestorage.app",
+      messagingSenderId: "19603951400",
+      appId: "1:19603951400:web:4eedb894f65ba908898a1d"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.database();
+
+    let currentUser = null;
+    let selectedPrice = 0;
+    let selectedCategory = '';
+    let currentQuantity = 1;
+    let maxStock = 0;
+    let currentServiceKey = '';
+
+    auth.onAuthStateChanged(user => {
+      if (!user) {
+        window.location.href = "index.html";
+      } else {
+        currentUser = user;
+        loadServicesFromDatabase();
+      }
+    });
+
+    // 🔴 Dynamic Database Load (Stock calculated by counting items under node)
+    function loadServicesFromDatabase() {
+      const container = document.getElementById('mailCardsContainer');
+      
+      db.ref('mail_services').on('value', snapshot => {
+        container.innerHTML = '';
+
+        if (!snapshot.exists()) {
+          container.innerHTML = '<p style="text-align: center; color: #94a3b8;">বর্তমানে কোনো মেইল সার্ভিস এভেলেবল নেই।</p>';
+          return;
+        }
+
+        snapshot.forEach(child => {
+          const service = child.val();
+          const serviceKey = child.key;
+
+          // items নোডের এর সংখ্যাই হলো আসল Stock
+          let realStock = 0;
+          if(service.items) {
+            realStock = Object.keys(service.items).length;
+          }
+
+          const cardHTML = `
+            <div class="card">
+              <div class="card-title">${service.title}</div>
+              <div class="price-tag">৳${service.price} <span class="price-unit">/ account</span></div>
+              
+              <ul class="feature-list">
+                <li><i class="fa-solid fa-circle"></i> Instant Delivery</li>
+                <li><i class="fa-solid fa-circle"></i> Mail:Pass:Token:ID Format</li>
+              </ul>
+
+              <button class="buy-btn" onclick="openBuyModal('${service.title}', ${service.price}, ${realStock}, '${serviceKey}')">
+                <i class="fa-solid fa-cart-shopping"></i> BUY NOW
+              </button>
+
+              <div class="availability">
+                <i class="fa-solid fa-circle-check"></i> ${realStock} available
+              </div>
+            </div>
+          `;
+          container.innerHTML += cardHTML;
+        });
+      });
+    }
+
+    function openBuyModal(category, price, stock, key) {
+      if(stock <= 0) {
+        alert("দুঃখিত, এই সার্ভিসটির স্টক শেষ!");
+        return;
+      }
+      selectedCategory = category;
+      selectedPrice = parseFloat(price);
+      maxStock = parseInt(stock);
+      currentServiceKey = key;
+      currentQuantity = 1;
+
+      document.getElementById('modalCategory').innerText = category;
+      document.getElementById('modalPrice').innerText = selectedPrice.toFixed(2);
+      document.getElementById('modalStock').innerText = maxStock;
+      
+      calculateTotal();
+      document.getElementById('buyModal').style.display = 'flex';
+    }
+
+    function closeBuyModal() {
+      document.getElementById('buyModal').style.display = 'none';
+    }
+
+    function updateQty(change) {
+      if (currentQuantity + change >= 1 && currentQuantity + change <= maxStock) {
+        currentQuantity += change;
+        calculateTotal();
+      }
+    }
+
+    function calculateTotal() {
+      document.getElementById('qtyVal').innerText = currentQuantity;
+      const total = (currentQuantity * selectedPrice).toFixed(2);
+      document.getElementById('totalCost').innerText = total;
+    }
+
+    // Auto Download Helper
+    function downloadMailFile(categoryName, mailContent) {
+      const blob = new Blob([mailContent], { type: "text/plain;charset=utf-8" });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = `${categoryName}_${Date.now()}.txt`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    // 🔴 Buy Logic: Fetch Exactly Requested Quantity & Delete from Stock
+    document.getElementById('confirmBuyBtn').addEventListener('click', () => {
+      const totalCost = parseFloat((currentQuantity * selectedPrice).toFixed(2));
+
+      document.getElementById('confirmBuyBtn').disabled = true;
+      document.getElementById('confirmBuyBtn').innerText = "Processing...";
+
+      db.ref('users/' + currentUser.uid + '/balance').once('value').then(snapshot => {
+        const currentBalance = snapshot.val() || 0;
+
+        if (currentBalance < totalCost) {
+          alert("আপনার ওয়ালেটে পর্যাপ্ত ব্যালেন্স নেই!");
+          document.getElementById('confirmBuyBtn').disabled = false;
+          document.getElementById('confirmBuyBtn').innerText = "Confirm Buy";
+          return;
+        }
+
+        // Fetch limited items equal to currentQuantity
+        db.ref('mail_services/' + currentServiceKey + '/items').limitToFirst(currentQuantity).once('value').then(itemsSnap => {
+          if (!itemsSnap.exists() || itemsSnap.numChildren() < currentQuantity) {
+            alert("দুঃখিত, পর্যাপ্ত স্টক পাওয়া যায়নি!");
+            document.getElementById('confirmBuyBtn').disabled = false;
+            document.getElementById('confirmBuyBtn').innerText = "Confirm Buy";
+            return;
+          }
+
+          let purchasedMailsText = "";
+          let updates = {};
+
+          itemsSnap.forEach(item => {
+            purchasedMailsText += item.val() + "\n";
+            // Set item to null to remove it from stock
+            updates['mail_services/' + currentServiceKey + '/items/' + item.key] = null;
+          });
+
+          // 1. Deduct Balance
+          updates['users/' + currentUser.uid + '/balance'] = currentBalance - totalCost;
+
+          // 2. Execute Updates (Remove stock & Deduct Balance)
+          db.ref().update(updates).then(() => {
+            // 3. Save to Orders & History
+            const orderRef = db.ref('orders').push();
+            const orderData = {
+              orderId: orderRef.key,
+              userId: currentUser.uid,
+              category: selectedCategory,
+              quantity: currentQuantity,
+              totalPrice: totalCost,
+              deliveredData: purchasedMailsText,
+              timestamp: firebase.database.ServerValue.TIMESTAMP
+            };
+
+            orderRef.set(orderData).then(() => {
+              db.ref('users/' + currentUser.uid + '/history/' + orderRef.key).set(orderData);
+              
+              // 4. Download File
+              downloadMailFile(selectedCategory, purchasedMailsText);
+              
+              alert("ক্রয় সফল হয়েছে! ফাইল ডাউনলোড হচ্ছে।");
+              document.getElementById('confirmBuyBtn').disabled = false;
+              document.getElementById('confirmBuyBtn').innerText = "Confirm Buy";
+              closeBuyModal();
+            });
+          });
+        });
+      });
+    });
+  </script>
+</body>
+</html>
