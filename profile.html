@@ -139,6 +139,41 @@
       color: #64748b;
       padding: 10px 0;
     }
+
+    /* Order Item Custom Styling */
+    .order-item {
+      border-bottom: 1px solid #334155;
+      padding: 12px 0;
+    }
+    .order-item:last-child {
+      border-bottom: none;
+    }
+    .order-header {
+      display: flex;
+      justify-content: space-between;
+      font-size: 15px;
+      font-weight: 700;
+      color: #3b82f6;
+      margin-bottom: 5px;
+    }
+    .order-details {
+      font-size: 12px;
+      color: #94a3b8;
+    }
+    .order-details p {
+      margin-top: 3px;
+    }
+    .delivered-box {
+      margin-top: 8px;
+      background: #0f172a;
+      border: 1px solid #334155;
+      padding: 8px;
+      border-radius: 6px;
+      color: #38bdf8;
+      word-break: break-all;
+      font-family: monospace;
+      font-size: 12px;
+    }
   </style>
 </head>
 <body>
@@ -180,7 +215,7 @@
     <!-- Order History Section -->
     <h3 class="section-title"><i class="fa-solid fa-bag-shopping"></i> Order History</h3>
     <div class="history-card" id="orderHistory">
-      <p class="empty-msg">No order history found.</p>
+      <p class="empty-msg">Loading orders...</p>
     </div>
 
   </div>
@@ -210,6 +245,7 @@
     const welcomeName = document.getElementById('welcomeName');
     const usernameText = document.getElementById('usernameText');
     const emailText = document.getElementById('emailText');
+    const orderHistoryContainer = document.getElementById('orderHistory');
 
     // Authentication Guard & User Profile Data Loading
     auth.onAuthStateChanged(user => {
@@ -231,11 +267,112 @@
           }
         });
 
+        // Load combined orders from both 'user_orders' and 'orders'
+        loadUserOrders(user.uid);
+
       } else {
         // User not logged in -> redirect to login page
         window.location.href = "index.html";
       }
     });
+
+    // Function to Fetch Orders from both nodes
+    function loadUserOrders(userId) {
+      const userOrdersRef = db.ref('user_orders/' + userId);
+      const ordersRef = db.ref('orders').orderByChild('userId').equalTo(userId);
+
+      // Fetch data from both nodes simultaneously
+      Promise.all([
+        userOrdersRef.once('value'),
+        ordersRef.once('value')
+      ]).then(([userOrdersSnap, ordersSnap]) => {
+        const combinedOrdersMap = {};
+
+        // 1. Process orders from 'user_orders/{userId}'
+        if (userOrdersSnap.exists()) {
+          const userOrdersData = userOrdersSnap.val();
+          Object.keys(userOrdersData).forEach(key => {
+            combinedOrdersMap[key] = { id: key, ...userOrdersData[key] };
+          });
+        }
+
+        // 2. Process orders from 'orders'
+        if (ordersSnap.exists()) {
+          const ordersData = ordersSnap.val();
+          Object.keys(ordersData).forEach(key => {
+            // Merge properties if order already exists or add new
+            combinedOrdersMap[key] = {
+              ...(combinedOrdersMap[key] || {}),
+              id: key,
+              ...ordersData[key]
+            };
+          });
+        }
+
+        const allOrders = Object.values(combinedOrdersMap);
+
+        if (allOrders.length === 0) {
+          orderHistoryContainer.innerHTML = '<p class="empty-msg">No order history found.</p>';
+          return;
+        }
+
+        // Sort orders by timestamp / date (Latest first)
+        allOrders.sort((a, b) => {
+          const timeA = a.timestamp || (a.date ? new Date(a.date).getTime() : 0);
+          const timeB = b.timestamp || (b.date ? new Date(b.date).getTime() : 0);
+          return timeB - timeA;
+        });
+
+        // Render Orders to UI
+        orderHistoryContainer.innerHTML = '';
+        allOrders.forEach(order => {
+          const title = order.title || order.category || 'Order';
+          const price = order.totalPrice !== undefined ? order.totalPrice : 0;
+          const quantity = order.quantity || 1;
+
+          // Format Delivered Data
+          let deliveredDataText = '';
+          if (Array.isArray(order.deliveredData)) {
+            deliveredDataText = order.deliveredData.join('<br>');
+          } else if (typeof order.deliveredData === 'object' && order.deliveredData !== null) {
+            deliveredDataText = Object.values(order.deliveredData).join('<br>');
+          } else if (order.deliveredData) {
+            deliveredDataText = order.deliveredData;
+          } else {
+            deliveredDataText = 'N/A';
+          }
+
+          // Format Date
+          let dateStr = 'N/A';
+          if (order.date) {
+            dateStr = new Date(order.date).toLocaleString();
+          } else if (order.timestamp) {
+            dateStr = new Date(order.timestamp).toLocaleString();
+          }
+
+          const html = `
+            <div class="order-item">
+              <div class="order-header">
+                <span>${title}</span>
+                <span>$ ${price}</span>
+              </div>
+              <div class="order-details">
+                <p><strong>Quantity:</strong> ${quantity}</p>
+                <p><strong>Date:</strong> ${dateStr}</p>
+                <div class="delivered-box">
+                  <strong>Delivered Data:</strong><br>${deliveredDataText}
+                </div>
+              </div>
+            </div>
+          `;
+          orderHistoryContainer.innerHTML += html;
+        });
+
+      }).catch(error => {
+        console.error("Error fetching orders:", error);
+        orderHistoryContainer.innerHTML = '<p class="empty-msg">Error loading orders.</p>';
+      });
+    }
   </script>
 </body>
 </html>
